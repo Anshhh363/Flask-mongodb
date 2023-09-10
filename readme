@@ -1,0 +1,17 @@
+i have created this flask-mongodb CRUD application as a project
+
+I used Flask for backend scripting and MongoDB as my database. for the connectivity i have used Flask-PyMongo
+library
+I have also used pydantic for data validation so that no wrong data is ever entered in the database,the
+password entered are also hashed and then entered in the database for user's privacy protection,
+used for hashing are bcrypt and passlib
+
+Setup Process-
+local setup-To set up the application locally
+1.create a virtual python environment and install all the dependencies from requirements.txt
+2.next in the main.py file uncomment the uri for local setup and comment the uri for docker setup
+3.now run the python file from virtual environment activated terminal by "python main.py"
+
+docker setup-To set up from docker
+1.first make sure that the Mongo-uri for docker is uncommented and Mongo-uri for local setup is commented
+2.next run "docker-compose up -d" in the terminal, this should pull latest mongo and mongoexpress images from docker hub and should also build images for mongo,mongoexpress and flask CRUD application and run it

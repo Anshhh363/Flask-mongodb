@@ -14,18 +14,11 @@ def hello_world():
 
 
 # connectivity code for connection of mongodb and flask app
-# app.config["MONGO_URI"] = "mongodb://localhost:27017/ProjectDatabase"
-app.config["MONGO_URI"] = "mongodb://mongo:27017/local"
+# app.config["MONGO_URI"] = "mongodb://localhost:27017/ProjectDatabase"   #this url is for local setup
+app.config[
+    "MONGO_URI"
+] = "mongodb://mongo:27017/local"  # this url is used for Docker-compose
 db = PyMongo(app).db
-
-
-# try:
-#     # This line will attempt to create a client
-#     # If the connection is successful, it means the connection is established.
-#     client = db.client
-#     print("Connected to MongoDB successfully.")
-# except Exception as e:
-#     print(f"Connection to MongoDB failed: {str(e)}")
 
 
 # route for creating a user
@@ -37,17 +30,13 @@ def create_user():
         email = data.get("email")
         password = data.get("password")
 
-        # Create a user document using the schema
+        # Parse the JSON data into a Pydantic model
         user = schm.User(name=name, email=email, password=hashpass(password))
 
         # Convert the user object to a dictionary
         user_dict = dict(user)
-        # Parse the JSON data into a Pydantic model
-        # data = request.get_json()
-        # user = schm.User(**data)
+        # insert validated data into mongodb
         userInsert = db.Users.insert_one(user_dict)
-        # objectID = userInsert.inserted_id
-
         # Return a JSON response with the user data
         response_data = {
             "message": "User created successfully",
@@ -63,7 +52,9 @@ def create_user():
 # route for getting a user by its id(objectid)
 @app.route("/users/<id>")
 def user_profile(id):
+    # query to get user with the object id
     user = db.Users.find_one_or_404({"_id": ObjectId(id)})
+    # convert object id to string to jsonify it in the end
     user["_id"] = str(user["_id"])
     return jsonify(user)
 
@@ -87,8 +78,11 @@ def list_user_profiles():
 # route for updating user through its id(object)
 @app.route("/users/<id>", methods=["PUT"])
 def update_user_profile(id):
+    # taking data from user
     data = request.get_json()
+    # using $ to set data to be updated
     update_query = {"$set": data}
+    # query to update data
     user = db.Users.find_one_and_update({"_id": ObjectId(id)}, update_query)
     if user is None:
         return "User not found", 404
